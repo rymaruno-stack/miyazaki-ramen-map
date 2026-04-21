@@ -1,0 +1,116 @@
+// ─── 地図の初期化 ───────────────────────────────────────────────
+const map = L.map("map").setView([31.9111, 131.4239], 14);
+
+L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+  attribution: '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
+  maxZoom: 19,
+}).addTo(map);
+
+// ─── カスタムピンアイコン ────────────────────────────────────────
+function createIcon(isNew) {
+  return L.divIcon({
+    className: "",
+    html: `<div class="${isNew ? "pin-new" : "pin-normal"}" style="width:18px;height:18px;"></div>`,
+    iconSize: [18, 18],
+    iconAnchor: [9, 9],
+    popupAnchor: [0, -12],
+  });
+}
+
+// ─── ポップアップHTML ────────────────────────────────────────────
+function popupHTML(shop) {
+  const badge = shop.is_new ? `<span class="badge-new">NEW</span>` : "";
+  const hours = shop.hours
+    ? `<div class="popup-hours"><span>営業時間：</span>${escapeHtml(shop.hours)}</div>`
+    : "";
+  const insta = shop.instagram_url
+    ? `<a href="${escapeHtml(shop.instagram_url)}" target="_blank" rel="noopener noreferrer"
+         class="popup-insta">📸 Instagram</a>`
+    : "";
+  return `
+    <div class="popup-inner">
+      <div class="popup-name">${escapeHtml(shop.name)} ${badge}</div>
+      <div class="popup-address">📍 ${escapeHtml(shop.address)}</div>
+      ${hours}
+      ${insta}
+    </div>
+  `;
+}
+
+function escapeHtml(str) {
+  return (str || "")
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;");
+}
+
+// ─── ピンと店舗カードの生成 ──────────────────────────────────────
+const markers = {};
+const listEl = document.getElementById("shop-list");
+const countEl = document.getElementById("shop-count");
+function renderShops(shops) {
+  if (countEl) countEl.textContent = `宮崎市内 ${shops.length}件掲載`;
+
+  if (shops.length === 0) {
+    listEl.innerHTML = `<p class="text-gray-400 text-sm col-span-2">まだ店舗が登録されていません。</p>`;
+    return;
+  }
+
+  shops.forEach((shop) => {
+    if (shop.lat == null || shop.lng == null) return;
+
+    const marker = L.marker([shop.lat, shop.lng], { icon: createIcon(shop.is_new) })
+      .addTo(map)
+      .bindPopup(popupHTML(shop), { maxWidth: 240 });
+
+    markers[shop.id] = marker;
+
+    const card = document.createElement("div");
+    card.className =
+      "shop-card bg-white rounded-xl border border-gray-200 shadow-sm p-4 cursor-pointer hover:shadow-md";
+    const instaBtn = shop.instagram_url
+      ? `<a href="${escapeHtml(shop.instagram_url)}" target="_blank" rel="noopener noreferrer"
+            class="card-insta" onclick="event.stopPropagation()">📸 Instagram</a>`
+      : "";
+    card.innerHTML = `
+      <div class="flex items-start justify-between">
+        <div>
+          <div class="font-bold text-gray-800 text-sm">${escapeHtml(shop.name)}</div>
+          <div class="text-xs text-gray-500 mt-1">📍 ${escapeHtml(shop.address)}</div>
+          ${shop.hours ? `<div class="text-xs text-gray-400 mt-1">🕐 ${escapeHtml(shop.hours)}</div>` : ""}
+          ${instaBtn}
+        </div>
+        ${shop.is_new ? `<span class="badge-new shrink-0 mt-0.5">NEW</span>` : ""}
+      </div>
+    `;
+
+    card.addEventListener("click", () => {
+      map.setView([shop.lat, shop.lng], 16, { animate: true });
+      markers[shop.id].openPopup();
+    });
+
+    listEl.appendChild(card);
+  });
+}
+
+// ─── Supabase からデータ取得 ─────────────────────────────────────
+async function loadShops() {
+  listEl.innerHTML = `<p class="text-gray-400 text-sm col-span-2 animate-pulse">読み込み中…</p>`;
+
+  const { data, error } = await db
+    .from("shops")
+    .select("*")
+    .order("created_at", { ascending: false });
+
+  if (error) {
+    console.error("データ取得エラー:", error.message);
+    listEl.innerHTML = `<p class="text-red-400 text-sm col-span-2">データの取得に失敗しました。</p>`;
+    return;
+  }
+
+  listEl.innerHTML = "";
+  renderShops(data);
+}
+
+loadShops();

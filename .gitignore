@@ -1,0 +1,22 @@
+# 依存関係
+node_modules/
+
+# OS生成ファイル
+.DS_Store
+Thumbs.db
+
+# エディタ設定
+.vscode/
+.idea/
+
+# 環境変数（機密情報）
+.env
+.env.local
+.env.*.local
+
+# ログ
+*.log
+
+# ビルド成果物
+dist/
+build/

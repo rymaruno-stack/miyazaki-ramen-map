@@ -1,0 +1,121 @@
+/* 地図の高さ */
+#map {
+  height: 480px;
+  width: 100%;
+  z-index: 0;
+}
+
+@media (max-width: 640px) {
+  #map {
+    height: 360px;
+  }
+}
+
+/* Leafletポップアップのカスタマイズ */
+.leaflet-popup-content-wrapper {
+  border-radius: 12px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+  padding: 0;
+  overflow: hidden;
+}
+
+.leaflet-popup-content {
+  margin: 0;
+  width: 220px !important;
+}
+
+.popup-inner {
+  padding: 14px 16px;
+}
+
+.popup-name {
+  font-size: 15px;
+  font-weight: 700;
+  color: #1a1a1a;
+  margin-bottom: 4px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.popup-address {
+  font-size: 12px;
+  color: #666;
+  margin-bottom: 6px;
+}
+
+.popup-hours {
+  font-size: 12px;
+  color: #444;
+}
+
+.popup-hours span {
+  color: #888;
+}
+
+/* NEWバッジ */
+.badge-new {
+  display: inline-block;
+  background-color: #22c55e;
+  color: white;
+  font-size: 10px;
+  font-weight: 800;
+  padding: 1px 6px;
+  border-radius: 999px;
+  letter-spacing: 0.05em;
+  vertical-align: middle;
+}
+
+/* カスタムピンアイコン（NEW） */
+.pin-new {
+  background: #22c55e;
+  border: 3px solid white;
+  border-radius: 50%;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+}
+
+/* カスタムピンアイコン（通常） */
+.pin-normal {
+  background: #ef4444;
+  border: 3px solid white;
+  border-radius: 50%;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+}
+
+/* 店舗カードのホバー */
+.shop-card:hover {
+  transform: translateY(-2px);
+  transition: transform 0.15s ease;
+}
+
+/* Instagram ボタン（ポップアップ内） */
+.popup-insta {
+  display: inline-block;
+  margin-top: 8px;
+  background: linear-gradient(135deg, #f9a8d4, #ec4899);
+  color: white;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 4px 10px;
+  border-radius: 999px;
+  text-decoration: none;
+}
+.popup-insta:hover {
+  opacity: 0.85;
+}
+
+/* Instagram ボタン（カード内） */
+.card-insta {
+  display: inline-block;
+  margin-top: 6px;
+  background: linear-gradient(135deg, #f9a8d4, #ec4899);
+  color: white;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 3px 10px;
+  border-radius: 999px;
+  text-decoration: none;
+}
+.card-insta:hover {
+  opacity: 0.85;
+}

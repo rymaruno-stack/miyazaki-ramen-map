@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>宮崎ラーメンマップ</title>
+
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- Leaflet CSS -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+
+  <!-- Custom CSS -->
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body class="bg-gray-50 min-h-screen">
+
+  <!-- ヘッダー -->
+  <header class="bg-red-600 text-white shadow-md">
+    <div class="max-w-5xl mx-auto px-4 py-3 flex items-center justify-between">
+      <div class="flex items-center gap-2">
+        <span class="text-2xl">🍜</span>
+        <h1 class="text-xl font-bold tracking-wide">宮崎ラーメンマップ</h1>
+      </div>
+      <div class="flex items-center gap-2">
+        <span id="shop-count" class="hidden sm:inline text-sm bg-red-700 px-3 py-1 rounded-full">読み込み中…</span>
+        <a href="submit.html"
+          class="text-sm bg-white text-red-600 font-bold px-3 py-1.5 rounded-full hover:bg-red-50 transition-colors shadow-sm">
+          ＋ 新店を登録する
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <!-- メインコンテンツ -->
+  <main class="max-w-5xl mx-auto px-4 py-4">
+
+    <!-- 説明テキスト -->
+    <p class="text-sm text-gray-500 mb-3">
+      📍 ピンをクリックすると店舗情報が表示されます。
+      <span class="inline-block bg-green-500 text-white text-xs font-bold px-2 py-0.5 rounded ml-1">NEW</span>
+      は新店です。
+    </p>
+
+    <!-- 地図 -->
+    <div id="map" class="rounded-xl shadow-lg border border-gray-200"></div>
+
+    <!-- 店舗一覧 -->
+    <section class="mt-6">
+      <h2 class="text-lg font-bold text-gray-700 mb-3">📋 店舗一覧</h2>
+      <div id="shop-list" class="grid grid-cols-1 sm:grid-cols-2 gap-3"></div>
+    </section>
+
+  </main>
+
+  <!-- ポップアップカスタムスタイルはstyle.cssで定義 -->
+
+  <!-- Leaflet JS -->
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+  <!-- Supabase JS SDK -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+
+  <!-- アプリJS -->
+  <script src="js/config.js"></script>
+  <script src="js/map.js"></script>
+
+</body>
+</html>
