@@ -140,6 +140,7 @@ async function loadShops() {
   const { data, error } = await db
     .from("shops")
     .select("*")
+    .eq("is_approved", true)
     .order("created_at", { ascending: false });
 
   if (error) {

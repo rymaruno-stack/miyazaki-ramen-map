@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>管理画面｜宮崎ラーメンマップ</title>
+
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- Custom CSS -->
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body class="bg-gray-50 min-h-screen">
+
+  <!-- ヘッダー -->
+  <header class="bg-red-600 text-white shadow-md">
+    <div class="max-w-5xl mx-auto px-4 py-3 flex items-center justify-between">
+      <a href="index.html" class="flex items-center gap-2 hover:opacity-80 transition-opacity">
+        <img src="images/logo.png" alt="宮崎ラーメンマップ" class="h-10 w-10 object-contain" />
+        <h1 class="text-xl font-bold tracking-wide">宮崎ラーメンマップ</h1>
+      </a>
+      <span class="text-sm bg-red-700 px-3 py-1 rounded-full font-bold">管理画面</span>
+    </div>
+  </header>
+
+  <!-- パスワード画面 -->
+  <div id="auth-screen" class="max-w-sm mx-auto px-4 py-16">
+    <div class="bg-white rounded-2xl shadow-md border border-gray-100 p-8 text-center">
+      <div class="text-4xl mb-4">🔒</div>
+      <h2 class="text-lg font-bold text-gray-800 mb-6">管理者ログイン</h2>
+      <input
+        type="password"
+        id="password-input"
+        placeholder="パスワードを入力"
+        class="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm text-center focus:outline-none focus:ring-2 focus:ring-red-400 focus:border-transparent mb-3"
+      />
+      <p id="auth-error" class="hidden text-red-500 text-xs mb-3">パスワードが違います</p>
+      <button
+        id="auth-btn"
+        class="w-full bg-red-600 hover:bg-red-700 text-white font-bold py-2.5 rounded-xl text-sm transition-colors"
+      >
+        ログイン
+      </button>
+    </div>
+  </div>
+
+  <!-- 管理コンテンツ（初期は非表示） -->
+  <main id="admin-content" class="hidden max-w-3xl mx-auto px-4 py-8">
+
+    <div class="flex items-center justify-between mb-6">
+      <h2 class="text-xl font-bold text-gray-800">承認待ち店舗</h2>
+      <span id="pending-count" class="text-sm bg-yellow-100 text-yellow-700 font-bold px-3 py-1 rounded-full"></span>
+    </div>
+
+    <!-- 読み込み中 -->
+    <p id="loading-msg" class="text-gray-400 text-sm animate-pulse">読み込み中…</p>
+
+    <!-- エラー -->
+    <p id="error-msg" class="hidden text-red-500 text-sm bg-red-50 border border-red-200 rounded-lg px-4 py-3"></p>
+
+    <!-- 店舗リスト -->
+    <div id="pending-list" class="space-y-4"></div>
+
+    <!-- 承認待ちなし -->
+    <div id="empty-msg" class="hidden text-center py-16">
+      <div class="text-4xl mb-3">✅</div>
+      <p class="text-gray-500 font-bold">承認待ちの店舗はありません</p>
+    </div>
+
+  </main>
+
+  <!-- Supabase JS SDK -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+
+  <!-- アプリJS -->
+  <script src="js/config.js"></script>
+
+  <script>
+    // ─── 認証 ────────────────────────────────────────────────────────
+    const ADMIN_PASSWORD = "Ganya0308";
+
+    const authScreen  = document.getElementById("auth-screen");
+    const authContent = document.getElementById("admin-content");
+    const authError   = document.getElementById("auth-error");
+    const passwordInput = document.getElementById("password-input");
+    const authBtn     = document.getElementById("auth-btn");
+
+    function tryLogin() {
+      if (passwordInput.value === ADMIN_PASSWORD) {
+        authScreen.classList.add("hidden");
+        authContent.classList.remove("hidden");
+        loadPending();
+      } else {
+        authError.classList.remove("hidden");
+        passwordInput.value = "";
+        passwordInput.focus();
+      }
+    }
+
+    authBtn.addEventListener("click", tryLogin);
+    passwordInput.addEventListener("keydown", (e) => {
+      if (e.key === "Enter") tryLogin();
+    });
+
+    // ─── データ取得 ───────────────────────────────────────────────────
+    const loadingMsg  = document.getElementById("loading-msg");
+    const errorMsg    = document.getElementById("error-msg");
+    const pendingList = document.getElementById("pending-list");
+    const pendingCount = document.getElementById("pending-count");
+    const emptyMsg    = document.getElementById("empty-msg");
+
+    async function loadPending() {
+      loadingMsg.classList.remove("hidden");
+      errorMsg.classList.add("hidden");
+      pendingList.innerHTML = "";
+      emptyMsg.classList.add("hidden");
+
+      const { data, error } = await db
+        .from("shops")
+        .select("*")
+        .eq("is_approved", false)
+        .order("created_at", { ascending: false });
+
+      loadingMsg.classList.add("hidden");
+
+      if (error) {
+        errorMsg.textContent = "データの取得に失敗しました: " + error.message;
+        errorMsg.classList.remove("hidden");
+        return;
+      }
+
+      if (data.length === 0) {
+        pendingCount.textContent = "0件";
+        emptyMsg.classList.remove("hidden");
+        return;
+      }
+
+      currentCount = data.length;
+      pendingCount.textContent = `${currentCount}件`;
+      data.forEach((shop) => pendingList.appendChild(createCard(shop)));
+    }
+
+    // ─── 店舗カード生成 ───────────────────────────────────────────────
+    function escapeHtml(str) {
+      return (str || "")
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;");
+    }
+
+    function formatHoursText(hours) {
+      if (!hours) return "未入力";
+      try {
+        const parsed = JSON.parse(hours);
+        const DAYS = {mon:"月",tue:"火",wed:"水",thu:"木",fri:"金",sat:"土",sun:"日"};
+        return Object.entries(DAYS).map(([key, label]) => {
+          const d = parsed[key];
+          if (!d) return null;
+          if (d.closed) return `${label}:定休`;
+          if (d.open && d.close) return `${label}:${d.open}〜${d.close}`;
+          return null;
+        }).filter(Boolean).join("　");
+      } catch {
+        return hours;
+      }
+    }
+
+    function createCard(shop) {
+      const card = document.createElement("div");
+      card.id = `card-${shop.id}`;
+      card.className = "bg-white rounded-xl border border-gray-200 shadow-sm p-4";
+
+      const instaLine = shop.instagram_url
+        ? `<a href="${escapeHtml(shop.instagram_url)}" target="_blank" rel="noopener noreferrer"
+              class="text-pink-500 hover:underline text-xs break-all">${escapeHtml(shop.instagram_url)}</a>`
+        : '<span class="text-gray-400 text-xs">なし</span>';
+
+      const badgeNew = shop.is_new
+        ? `<span class="badge-new ml-1">NEW</span>` : "";
+
+      card.innerHTML = `
+        <div class="flex items-start justify-between gap-3">
+          <div class="min-w-0 flex-1">
+            <div class="font-bold text-gray-800 text-base">${escapeHtml(shop.name)}${badgeNew}</div>
+            <div class="text-xs text-gray-500 mt-1">📍 ${escapeHtml(shop.address)}</div>
+            <div class="text-xs text-gray-500 mt-1">🕐 ${escapeHtml(formatHoursText(shop.hours))}</div>
+            <div class="text-xs mt-1">📸 ${instaLine}</div>
+            <div class="text-xs text-gray-400 mt-1">投稿日時: ${new Date(shop.created_at).toLocaleString("ja-JP")}</div>
+          </div>
+        </div>
+        <div class="flex gap-3 mt-4">
+          <button
+            onclick="approveShop(${shop.id})"
+            class="flex-1 bg-green-500 hover:bg-green-600 active:bg-green-700 text-white text-sm font-bold py-2 rounded-xl transition-colors"
+          >
+            ✅ 承認する
+          </button>
+          <button
+            onclick="deleteShop(${shop.id})"
+            class="flex-1 bg-gray-100 hover:bg-red-100 active:bg-red-200 text-red-500 hover:text-red-600 text-sm font-bold py-2 rounded-xl transition-colors"
+          >
+            🗑️ 削除する
+          </button>
+        </div>
+        <p id="msg-${shop.id}" class="hidden text-xs text-center mt-2"></p>
+      `;
+      return card;
+    }
+
+    // ─── 承認 ────────────────────────────────────────────────────────
+    async function approveShop(id) {
+      const btns = document.querySelectorAll(`#card-${id} button`);
+      btns.forEach((b) => b.disabled = true);
+
+      const { error } = await db
+        .from("shops")
+        .update({ is_approved: true })
+        .eq("id", id);
+
+      if (error) {
+        showCardMsg(id, "⚠️ 承認に失敗しました: " + error.message, "text-red-500");
+        btns.forEach((b) => b.disabled = false);
+        return;
+      }
+
+      const card = document.getElementById(`card-${id}`);
+      card.classList.add("opacity-0", "transition-opacity", "duration-300");
+      setTimeout(() => {
+        card.remove();
+        updateCount(-1);
+      }, 300);
+    }
+
+    // ─── 削除 ────────────────────────────────────────────────────────
+    async function deleteShop(id) {
+      if (!confirm("この店舗を削除してもよいですか？")) return;
+
+      const btns = document.querySelectorAll(`#card-${id} button`);
+      btns.forEach((b) => b.disabled = true);
+
+      const { error } = await db
+        .from("shops")
+        .delete()
+        .eq("id", id);
+
+      if (error) {
+        showCardMsg(id, "⚠️ 削除に失敗しました: " + error.message, "text-red-500");
+        btns.forEach((b) => b.disabled = false);
+        return;
+      }
+
+      const card = document.getElementById(`card-${id}`);
+      card.classList.add("opacity-0", "transition-opacity", "duration-300");
+      setTimeout(() => {
+        card.remove();
+        updateCount(-1);
+      }, 300);
+    }
+
+    // ─── ヘルパー ─────────────────────────────────────────────────────
+    function showCardMsg(id, text, colorClass) {
+      const el = document.getElementById(`msg-${id}`);
+      el.textContent = text;
+      el.className = `text-xs text-center mt-2 ${colorClass}`;
+      el.classList.remove("hidden");
+    }
+
+    let currentCount = 0;
+    function updateCount(delta) {
+      currentCount += delta;
+      if (currentCount <= 0) {
+        pendingCount.textContent = "0件";
+        emptyMsg.classList.remove("hidden");
+      } else {
+        pendingCount.textContent = `${currentCount}件`;
+      }
+    }
+
+  </script>
+
+</body>
+</html>
