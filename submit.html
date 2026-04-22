@@ -73,16 +73,156 @@
 
         <!-- 営業時間 -->
         <div class="mb-5">
-          <label for="hours" class="block text-sm font-bold text-gray-700 mb-1">
-            営業時間
-          </label>
-          <input
-            type="text"
-            id="hours"
-            name="hours"
-            placeholder="例：11:00〜22:00（火曜定休）"
-            class="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-red-400 focus:border-transparent transition"
-          />
+          <div class="flex items-center justify-between mb-2">
+            <label class="text-sm font-bold text-gray-700">営業時間</label>
+            <button type="button" id="copy-weekday"
+              class="text-xs bg-gray-100 hover:bg-gray-200 text-gray-600 font-semibold px-3 py-1 rounded-full transition">
+              月〜金にコピー
+            </button>
+          </div>
+          <div class="border border-gray-200 rounded-xl overflow-hidden divide-y divide-gray-100">
+
+            <!-- 月 -->
+            <div class="day-row bg-white" data-day="mon">
+              <div class="flex items-center gap-2 px-3 py-2">
+                <span class="text-sm font-bold text-gray-700 w-5 shrink-0">月</span>
+                <label class="flex items-center gap-1.5 cursor-pointer shrink-0">
+                  <input type="checkbox" class="day-closed w-4 h-4 rounded border-gray-300 cursor-pointer" />
+                  <span class="text-xs text-gray-500">定休</span>
+                </label>
+                <div class="day-times flex items-center gap-1">
+                  <input type="time" class="day-open w-[74px] text-xs border border-gray-200 rounded-lg px-1.5 py-1.5 focus:outline-none focus:ring-1 focus:ring-red-400" />
+                  <span class="text-xs text-gray-400">〜</span>
+                  <input type="time" class="day-close w-[74px] text-xs border border-gray-200 rounded-lg px-1.5 py-1.5 focus:outline-none focus:ring-1 focus:ring-red-400" />
+                </div>
+              </div>
+              <div class="day-lo-row flex items-center gap-1.5 pl-20 pb-2">
+                <span class="text-xs text-gray-400 w-5">LO</span>
+                <input type="time" class="day-lo w-[74px] text-xs border border-gray-200 rounded-lg px-1.5 py-1.5 focus:outline-none focus:ring-1 focus:ring-red-400" />
+              </div>
+            </div>
+
+            <!-- 火 -->
+            <div class="day-row bg-white" data-day="tue">
+              <div class="flex items-center gap-2 px-3 py-2">
+                <span class="text-sm font-bold text-gray-700 w-5 shrink-0">火</span>
+                <label class="flex items-center gap-1.5 cursor-pointer shrink-0">
+                  <input type="checkbox" class="day-closed w-4 h-4 rounded border-gray-300 cursor-pointer" />
+                  <span class="text-xs text-gray-500">定休</span>
+                </label>
+                <div class="day-times flex items-center gap-1">
+                  <input type="time" class="day-open w-[74px] text-xs border border-gray-200 rounded-lg px-1.5 py-1.5 focus:outline-none focus:ring-1 focus:ring-red-400" />
+                  <span class="text-xs text-gray-400">〜</span>
+                  <input type="time" class="day-close w-[74px] text-xs border border-gray-200 rounded-lg px-1.5 py-1.5 focus:outline-none focus:ring-1 focus:ring-red-400" />
+                </div>
+              </div>
+              <div class="day-lo-row flex items-center gap-1.5 pl-20 pb-2">
+                <span class="text-xs text-gray-400 w-5">LO</span>
+                <input type="time" class="day-lo w-[74px] text-xs border border-gray-200 rounded-lg px-1.5 py-1.5 focus:outline-none focus:ring-1 focus:ring-red-400" />
+              </div>
+            </div>
+
+            <!-- 水 -->
+            <div class="day-row bg-white" data-day="wed">
+              <div class="flex items-center gap-2 px-3 py-2">
+                <span class="text-sm font-bold text-gray-700 w-5 shrink-0">水</span>
+                <label class="flex items-center gap-1.5 cursor-pointer shrink-0">
+                  <input type="checkbox" class="day-closed w-4 h-4 rounded border-gray-300 cursor-pointer" />
+                  <span class="text-xs text-gray-500">定休</span>
+                </label>
+                <div class="day-times flex items-center gap-1">
+                  <input type="time" class="day-open w-[74px] text-xs border border-gray-200 rounded-lg px-1.5 py-1.5 focus:outline-none focus:ring-1 focus:ring-red-400" />
+                  <span class="text-xs text-gray-400">〜</span>
+                  <input type="time" class="day-close w-[74px] text-xs border border-gray-200 rounded-lg px-1.5 py-1.5 focus:outline-none focus:ring-1 focus:ring-red-400" />
+                </div>
+              </div>
+              <div class="day-lo-row flex items-center gap-1.5 pl-20 pb-2">
+                <span class="text-xs text-gray-400 w-5">LO</span>
+                <input type="time" class="day-lo w-[74px] text-xs border border-gray-200 rounded-lg px-1.5 py-1.5 focus:outline-none focus:ring-1 focus:ring-red-400" />
+              </div>
+            </div>
+
+            <!-- 木 -->
+            <div class="day-row bg-white" data-day="thu">
+              <div class="flex items-center gap-2 px-3 py-2">
+                <span class="text-sm font-bold text-gray-700 w-5 shrink-0">木</span>
+                <label class="flex items-center gap-1.5 cursor-pointer shrink-0">
+                  <input type="checkbox" class="day-closed w-4 h-4 rounded border-gray-300 cursor-pointer" />
+                  <span class="text-xs text-gray-500">定休</span>
+                </label>
+                <div class="day-times flex items-center gap-1">
+                  <input type="time" class="day-open w-[74px] text-xs border border-gray-200 rounded-lg px-1.5 py-1.5 focus:outline-none focus:ring-1 focus:ring-red-400" />
+                  <span class="text-xs text-gray-400">〜</span>
+                  <input type="time" class="day-close w-[74px] text-xs border border-gray-200 rounded-lg px-1.5 py-1.5 focus:outline-none focus:ring-1 focus:ring-red-400" />
+                </div>
+              </div>
+              <div class="day-lo-row flex items-center gap-1.5 pl-20 pb-2">
+                <span class="text-xs text-gray-400 w-5">LO</span>
+                <input type="time" class="day-lo w-[74px] text-xs border border-gray-200 rounded-lg px-1.5 py-1.5 focus:outline-none focus:ring-1 focus:ring-red-400" />
+              </div>
+            </div>
+
+            <!-- 金 -->
+            <div class="day-row bg-white" data-day="fri">
+              <div class="flex items-center gap-2 px-3 py-2">
+                <span class="text-sm font-bold text-gray-700 w-5 shrink-0">金</span>
+                <label class="flex items-center gap-1.5 cursor-pointer shrink-0">
+                  <input type="checkbox" class="day-closed w-4 h-4 rounded border-gray-300 cursor-pointer" />
+                  <span class="text-xs text-gray-500">定休</span>
+                </label>
+                <div class="day-times flex items-center gap-1">
+                  <input type="time" class="day-open w-[74px] text-xs border border-gray-200 rounded-lg px-1.5 py-1.5 focus:outline-none focus:ring-1 focus:ring-red-400" />
+                  <span class="text-xs text-gray-400">〜</span>
+                  <input type="time" class="day-close w-[74px] text-xs border border-gray-200 rounded-lg px-1.5 py-1.5 focus:outline-none focus:ring-1 focus:ring-red-400" />
+                </div>
+              </div>
+              <div class="day-lo-row flex items-center gap-1.5 pl-20 pb-2">
+                <span class="text-xs text-gray-400 w-5">LO</span>
+                <input type="time" class="day-lo w-[74px] text-xs border border-gray-200 rounded-lg px-1.5 py-1.5 focus:outline-none focus:ring-1 focus:ring-red-400" />
+              </div>
+            </div>
+
+            <!-- 土 -->
+            <div class="day-row bg-red-50/40" data-day="sat">
+              <div class="flex items-center gap-2 px-3 py-2">
+                <span class="text-sm font-bold text-orange-500 w-5 shrink-0">土</span>
+                <label class="flex items-center gap-1.5 cursor-pointer shrink-0">
+                  <input type="checkbox" class="day-closed w-4 h-4 rounded border-gray-300 cursor-pointer" />
+                  <span class="text-xs text-gray-500">定休</span>
+                </label>
+                <div class="day-times flex items-center gap-1">
+                  <input type="time" class="day-open w-[74px] text-xs border border-gray-200 rounded-lg px-1.5 py-1.5 focus:outline-none focus:ring-1 focus:ring-red-400" />
+                  <span class="text-xs text-gray-400">〜</span>
+                  <input type="time" class="day-close w-[74px] text-xs border border-gray-200 rounded-lg px-1.5 py-1.5 focus:outline-none focus:ring-1 focus:ring-red-400" />
+                </div>
+              </div>
+              <div class="day-lo-row flex items-center gap-1.5 pl-20 pb-2">
+                <span class="text-xs text-gray-400 w-5">LO</span>
+                <input type="time" class="day-lo w-[74px] text-xs border border-gray-200 rounded-lg px-1.5 py-1.5 focus:outline-none focus:ring-1 focus:ring-red-400" />
+              </div>
+            </div>
+
+            <!-- 日 -->
+            <div class="day-row bg-red-50/40" data-day="sun">
+              <div class="flex items-center gap-2 px-3 py-2">
+                <span class="text-sm font-bold text-red-500 w-5 shrink-0">日</span>
+                <label class="flex items-center gap-1.5 cursor-pointer shrink-0">
+                  <input type="checkbox" class="day-closed w-4 h-4 rounded border-gray-300 cursor-pointer" />
+                  <span class="text-xs text-gray-500">定休</span>
+                </label>
+                <div class="day-times flex items-center gap-1">
+                  <input type="time" class="day-open w-[74px] text-xs border border-gray-200 rounded-lg px-1.5 py-1.5 focus:outline-none focus:ring-1 focus:ring-red-400" />
+                  <span class="text-xs text-gray-400">〜</span>
+                  <input type="time" class="day-close w-[74px] text-xs border border-gray-200 rounded-lg px-1.5 py-1.5 focus:outline-none focus:ring-1 focus:ring-red-400" />
+                </div>
+              </div>
+              <div class="day-lo-row flex items-center gap-1.5 pl-20 pb-2">
+                <span class="text-xs text-gray-400 w-5">LO</span>
+                <input type="time" class="day-lo w-[74px] text-xs border border-gray-200 rounded-lg px-1.5 py-1.5 focus:outline-none focus:ring-1 focus:ring-red-400" />
+              </div>
+            </div>
+
+          </div>
         </div>
 
         <!-- Instagram URL -->

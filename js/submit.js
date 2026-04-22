@@ -36,13 +36,69 @@ async function geocode(address) {
   return { lat, lng };
 }
 
+// ─── 営業時間 UI ─────────────────────────────────────────────────
+const DAYS = ["mon","tue","wed","thu","fri","sat","sun"];
+
+function updateRowState(row) {
+  const closed = row.querySelector(".day-closed").checked;
+  const times = row.querySelector(".day-times");
+  const loRow = row.querySelector(".day-lo-row");
+  if (closed) {
+    times.classList.add("opacity-30", "pointer-events-none");
+    loRow.classList.add("hidden");
+  } else {
+    times.classList.remove("opacity-30", "pointer-events-none");
+    loRow.classList.remove("hidden");
+  }
+}
+
+document.querySelectorAll(".day-closed").forEach((cb) => {
+  cb.addEventListener("change", () => updateRowState(cb.closest(".day-row")));
+});
+
+document.getElementById("copy-weekday").addEventListener("click", () => {
+  const mon = document.querySelector("[data-day='mon']");
+  const vals = {
+    open: mon.querySelector(".day-open").value,
+    close: mon.querySelector(".day-close").value,
+    lo: mon.querySelector(".day-lo").value,
+    closed: mon.querySelector(".day-closed").checked,
+  };
+  ["tue","wed","thu","fri"].forEach((day) => {
+    const row = document.querySelector(`[data-day="${day}"]`);
+    row.querySelector(".day-open").value = vals.open;
+    row.querySelector(".day-close").value = vals.close;
+    row.querySelector(".day-lo").value = vals.lo;
+    row.querySelector(".day-closed").checked = vals.closed;
+    updateRowState(row);
+  });
+});
+
+function getHoursData() {
+  const result = {};
+  DAYS.forEach((day) => {
+    const row = document.querySelector(`[data-day="${day}"]`);
+    const closed = row.querySelector(".day-closed").checked;
+    if (closed) {
+      result[day] = { closed: true };
+    } else {
+      result[day] = {
+        open: row.querySelector(".day-open").value || null,
+        close: row.querySelector(".day-close").value || null,
+        lo: row.querySelector(".day-lo").value || null,
+        closed: false,
+      };
+    }
+  });
+  return result;
+}
+
 // ─── フォーム送信 ────────────────────────────────────────────────
 form.addEventListener("submit", async (e) => {
   e.preventDefault();
 
   const name = document.getElementById("name").value.trim();
   const address = document.getElementById("address").value.trim();
-  const hours = document.getElementById("hours").value.trim();
   const instagramUrl = document.getElementById("instagram_url").value.trim();
   const phone = document.getElementById("phone").value.trim();
   const isNew = document.getElementById("is_new").checked;
@@ -68,7 +124,7 @@ form.addEventListener("submit", async (e) => {
     const { error } = await db.from("shops").insert({
       name,
       address,
-      hours: hours || null,
+      hours: JSON.stringify(getHoursData()),
       phone: phone || null,
       instagram_url: instagramUrl || null,
       is_new: isNew,
