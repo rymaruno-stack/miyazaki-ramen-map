@@ -88,6 +88,30 @@
   transition: transform 0.15s ease;
 }
 
+/* ボタン横並びラッパー */
+.popup-actions,
+.card-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 8px;
+}
+
+/* 道案内ボタン（ポップアップ内） */
+.popup-nav {
+  display: inline-block;
+  background: linear-gradient(135deg, #60a5fa, #2563eb);
+  color: white;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 4px 10px;
+  border-radius: 999px;
+  text-decoration: none;
+}
+.popup-nav:hover {
+  opacity: 0.85;
+}
+
 /* Instagram ボタン（ポップアップ内） */
 .popup-insta {
   display: inline-block;
@@ -104,15 +128,29 @@
   opacity: 0.85;
 }
 
+/* 道案内ボタン（カード内） */
+.card-nav {
+  display: inline-block;
+  background: linear-gradient(135deg, #60a5fa, #2563eb);
+  color: white;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 5px 12px;
+  border-radius: 999px;
+  text-decoration: none;
+}
+.card-nav:hover {
+  opacity: 0.85;
+}
+
 /* Instagram ボタン（カード内） */
 .card-insta {
   display: inline-block;
-  margin-top: 6px;
   background: linear-gradient(135deg, #f9a8d4, #ec4899);
   color: white;
   font-size: 11px;
   font-weight: 700;
-  padding: 3px 10px;
+  padding: 5px 12px;
   border-radius: 999px;
   text-decoration: none;
 }

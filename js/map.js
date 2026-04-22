@@ -27,12 +27,14 @@ function popupHTML(shop) {
     ? `<a href="${escapeHtml(shop.instagram_url)}" target="_blank" rel="noopener noreferrer"
          class="popup-insta">📸 Instagram</a>`
     : "";
+  const nav = `<a href="https://www.google.com/maps/dir/?api=1&destination=${shop.lat},${shop.lng}"
+       target="_blank" rel="noopener noreferrer" class="popup-nav">🗺️ 道案内</a>`;
   return `
     <div class="popup-inner">
       <div class="popup-name">${escapeHtml(shop.name)} ${badge}</div>
       <div class="popup-address">📍 ${escapeHtml(shop.address)}</div>
       ${hours}
-      ${insta}
+      <div class="popup-actions">${nav}${insta}</div>
     </div>
   `;
 }
@@ -73,13 +75,16 @@ function renderShops(shops) {
       ? `<a href="${escapeHtml(shop.instagram_url)}" target="_blank" rel="noopener noreferrer"
             class="card-insta" onclick="event.stopPropagation()">📸 Instagram</a>`
       : "";
+    const navBtn = `<a href="https://www.google.com/maps/dir/?api=1&destination=${shop.lat},${shop.lng}"
+          target="_blank" rel="noopener noreferrer"
+          class="card-nav" onclick="event.stopPropagation()">🗺️ 道案内</a>`;
     card.innerHTML = `
       <div class="flex items-start justify-between">
         <div>
           <div class="font-bold text-gray-800 text-sm">${escapeHtml(shop.name)}</div>
           <div class="text-xs text-gray-500 mt-1">📍 ${escapeHtml(shop.address)}</div>
           ${shop.hours ? `<div class="text-xs text-gray-400 mt-1">🕐 ${escapeHtml(shop.hours)}</div>` : ""}
-          ${instaBtn}
+          <div class="card-actions">${navBtn}${instaBtn}</div>
         </div>
         ${shop.is_new ? `<span class="badge-new shrink-0 mt-0.5">NEW</span>` : ""}
       </div>
