@@ -135,6 +135,47 @@
   margin-top: 8px;
 }
 
+/* 備考（ポップアップ） */
+.popup-note {
+  font-size: 12px;
+  color: #555;
+  margin-bottom: 4px;
+}
+
+/* 営業状況バッジ共通 */
+.popup-status {
+  margin-bottom: 6px;
+}
+
+.status-badge {
+  display: inline-block;
+  font-size: 10px;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 999px;
+  white-space: nowrap;
+}
+
+.status-open {
+  background: #dcfce7;
+  color: #15803d;
+}
+
+.status-lo {
+  background: #fef9c3;
+  color: #a16207;
+}
+
+.status-closed {
+  background: #fee2e2;
+  color: #dc2626;
+}
+
+.status-holiday {
+  background: #f3f4f6;
+  color: #6b7280;
+}
+
 /* 道案内ボタン（ポップアップ内） */
 .popup-nav {
   display: inline-block;

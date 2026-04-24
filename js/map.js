@@ -54,6 +54,8 @@ function formatHoursHTML(hours) {
 // ─── ポップアップHTML ────────────────────────────────────────────
 function popupHTML(shop) {
   const badge = shop.is_new ? `<span class="badge-new">NEW</span>` : "";
+  const status = getBusinessStatus(shop.hours);
+  const statusBadge = status ? `<div class="popup-status">${statusBadgeHTML(status)}</div>` : "";
   const hoursHTML = formatHoursHTML(shop.hours);
   const hours = hoursHTML ? `<div class="popup-hours-wrap">${hoursHTML}</div>` : "";
   const note = shop.note
@@ -69,6 +71,7 @@ function popupHTML(shop) {
     <div class="popup-inner">
       <div class="popup-name">${escapeHtml(shop.name)} ${badge}</div>
       <div class="popup-address">📍 ${escapeHtml(shop.address)}</div>
+      ${statusBadge}
       ${hours}
       ${note}
       <div class="popup-actions">${nav}${insta}</div>
@@ -84,11 +87,66 @@ function escapeHtml(str) {
     .replace(/"/g, "&quot;");
 }
 
+// ─── 営業状況判定 ─────────────────────────────────────────────
+function timeToMin(t) {
+  if (!t) return null;
+  const p = t.split(":");
+  return parseInt(p[0], 10) * 60 + parseInt(p[1], 10);
+}
+
+function getBusinessStatus(hoursJson) {
+  if (!hoursJson) return null;
+  let parsed;
+  try {
+    parsed = JSON.parse(hoursJson);
+    if (typeof parsed !== "object" || Array.isArray(parsed)) return null;
+  } catch (e) { return null; }
+
+  const now      = new Date();
+  const DAY_MAP  = ["sun","mon","tue","wed","thu","fri","sat"];
+  const todayKey = DAY_MAP[now.getDay()];
+  const yestKey  = DAY_MAP[(now.getDay() + 6) % 7];
+  const cur      = now.getHours() * 60 + now.getMinutes();
+
+  // 昨日が深夜越え営業で今がその範囲内かチェック
+  const dy = parsed[yestKey];
+  if (dy && !dy.closed && dy.open && dy.close) {
+    const oyM = timeToMin(dy.open), cyM = timeToMin(dy.close);
+    if (cyM < oyM && cur < cyM) {
+      const lyM = dy.lo ? timeToMin(dy.lo) : null;
+      return (lyM !== null && cur >= lyM) ? "lo_passed" : "open";
+    }
+  }
+
+  const d = parsed[todayKey];
+  if (!d) return null;
+  if (d.closed) return "holiday";
+  if (!d.open || !d.close) return null;
+
+  const oM = timeToMin(d.open), cM = timeToMin(d.close);
+  const lM = d.lo ? timeToMin(d.lo) : null;
+
+  // 深夜越えは開店〜深夜まで「営業中」、翌朝〜閉店は昨日チェックで処理済み
+  const inHours = cM < oM ? cur >= oM : cur >= oM && cur < cM;
+  if (!inHours) return "closed";
+  return (lM !== null && cur >= lM) ? "lo_passed" : "open";
+}
+
+function statusBadgeHTML(status) {
+  if (status === "open")      return '<span class="status-badge status-open">🟢 営業中</span>';
+  if (status === "lo_passed") return '<span class="status-badge status-lo">🟡 LO済み</span>';
+  if (status === "closed")    return '<span class="status-badge status-closed">🔴 営業時間外</span>';
+  if (status === "holiday")   return '<span class="status-badge status-holiday">⚫ 定休日</span>';
+  return "";
+}
+
 // ─── ピンと店舗カードの生成 ──────────────────────────────────────
 const markers = {};
+let allShops = [];
 const listEl = document.getElementById("shop-list");
 const countEl = document.getElementById("shop-count");
 function renderShops(shops) {
+  allShops = shops;
   if (countEl) countEl.textContent = `宮崎市内 ${shops.length}件掲載`;
 
   if (shops.length === 0) {
@@ -119,11 +177,14 @@ function renderShops(shops) {
     const noteHTML = shop.note
       ? `<div class="text-xs text-gray-500 mt-1">📝 ${escapeHtml(shop.note)}</div>`
       : "";
+    const s = getBusinessStatus(shop.hours);
+    const statusDiv = `<div class="mt-1" data-status-id="${shop.id}">${s ? statusBadgeHTML(s) : ""}</div>`;
     card.innerHTML = `
       <div class="flex items-start justify-between">
         <div class="min-w-0 flex-1">
           <div class="font-bold text-gray-800 text-sm">${escapeHtml(shop.name)}</div>
           <div class="text-xs text-gray-500 mt-1">📍 ${escapeHtml(shop.address)}</div>
+          ${statusDiv}
           ${hoursHTML ? `<div class="mt-2">${hoursHTML}</div>` : ""}
           ${noteHTML}
           <div class="card-actions">${navBtn}${instaBtn}</div>
@@ -161,4 +222,19 @@ async function loadShops() {
   renderShops(data);
 }
 
+// ─── 営業状況の自動更新（1分ごと）───────────────────────────────
+function updateAllStatuses() {
+  allShops.forEach(function(shop) {
+    const s = getBusinessStatus(shop.hours);
+    // カードバッジ更新
+    const el = listEl.querySelector("[data-status-id='" + shop.id + "']");
+    if (el) { el.innerHTML = s ? statusBadgeHTML(s) : ""; }
+    // ポップアップ内容更新（開いていれば即時反映）
+    if (markers[shop.id]) {
+      markers[shop.id].setPopupContent(popupHTML(shop));
+    }
+  });
+}
+
 loadShops();
+setInterval(updateAllStatuses, 60000);
