@@ -230,6 +230,7 @@ function renderShops(shops) {
 
     const card = document.createElement("div");
     card.className = "shop-list-item";
+    card.setAttribute("data-shop-id", shop.id);
 
     const s = getBusinessStatus(shop.hours);
     card.innerHTML = `
@@ -287,6 +288,39 @@ function updateAllStatuses() {
   if (currentModalShop) {
     showDetailModal(currentModalShop);
   }
+}
+
+// ─── 検索フィルタ ─────────────────────────────────────────────
+const searchInput = document.getElementById("shop-search");
+const searchClear = document.getElementById("search-clear");
+
+function filterShops(query) {
+  const q = query.trim().toLowerCase();
+  allShops.forEach(function(shop) {
+    const match = !q || shop.name.toLowerCase().includes(q);
+    const card = listEl.querySelector('[data-shop-id="' + shop.id + '"]');
+    if (card) { card.style.display = match ? "" : "none"; }
+    if (markers[shop.id]) {
+      if (match) { markers[shop.id].addTo(map); }
+      else        { markers[shop.id].remove();  }
+    }
+  });
+}
+
+if (searchInput) {
+  searchInput.addEventListener("input", function() {
+    searchClear.classList.toggle("hidden", !this.value);
+    filterShops(this.value);
+  });
+}
+
+if (searchClear) {
+  searchClear.addEventListener("click", function() {
+    searchInput.value = "";
+    searchClear.classList.add("hidden");
+    filterShops("");
+    searchInput.focus();
+  });
 }
 
 initModal();
