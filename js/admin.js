@@ -220,9 +220,19 @@ function buildApprovedCard(shop) {
   addrEl.className = "text-xs text-gray-500 mt-1";
   addrEl.textContent = "住所: " + (shop.address || "未入力");
 
+  var btnRowTop = document.createElement("div");
+  btnRowTop.className = "flex gap-2 mt-3";
+
   var editBtn = document.createElement("button");
   editBtn.textContent = "編集する";
-  editBtn.className = "mt-3 text-sm bg-blue-500 hover:bg-blue-600 text-white font-bold py-1.5 px-4 rounded-xl";
+  editBtn.className = "bg-blue-500 hover:bg-blue-600 text-white text-sm font-bold py-1.5 px-4 rounded-xl";
+
+  var delBtn = document.createElement("button");
+  delBtn.textContent = "削除する";
+  delBtn.className = "bg-gray-100 hover:bg-red-100 text-red-500 text-sm font-bold py-1.5 px-4 rounded-xl";
+
+  btnRowTop.appendChild(editBtn);
+  btnRowTop.appendChild(delBtn);
 
   var msgEl = document.createElement("p");
   msgEl.className = "hidden text-xs text-red-500 text-center mt-2";
@@ -236,14 +246,42 @@ function buildApprovedCard(shop) {
 
   editBtn.addEventListener("click", function() {
     editForm.classList.remove("hidden");
-    editBtn.classList.add("hidden");
+    btnRowTop.classList.add("hidden");
     msgEl.classList.add("hidden");
   });
 
   cancelBtn.addEventListener("click", function() {
     editForm.classList.add("hidden");
-    editBtn.classList.remove("hidden");
+    btnRowTop.classList.remove("hidden");
     msgEl.classList.add("hidden");
+  });
+
+  delBtn.addEventListener("click", function() {
+    if (!confirm("本当に削除しますか？")) { return; }
+    delBtn.disabled = true;
+    editBtn.disabled = true;
+    delBtn.textContent = "削除中...";
+
+    db.from("shops")
+      .delete()
+      .eq("id", shop.id)
+      .then(function(res) {
+        if (res.error) {
+          msgEl.textContent = "エラー: " + res.error.message;
+          msgEl.classList.remove("hidden");
+          delBtn.disabled = false;
+          editBtn.disabled = false;
+          delBtn.textContent = "削除する";
+        } else {
+          card.style.opacity = "0";
+          card.style.transition = "opacity 0.3s";
+          setTimeout(function() {
+            if (card.parentNode) { card.parentNode.removeChild(card); }
+            var current = parseInt(approvedCountBadge.textContent, 10) || 0;
+            approvedCountBadge.textContent = Math.max(0, current - 1) + "件";
+          }, 300);
+        }
+      });
   });
 
   saveBtn.addEventListener("click", function() {
@@ -306,7 +344,7 @@ function buildApprovedCard(shop) {
 
   card.appendChild(nameEl);
   card.appendChild(addrEl);
-  card.appendChild(editBtn);
+  card.appendChild(btnRowTop);
   card.appendChild(editForm);
   card.appendChild(msgEl);
 
