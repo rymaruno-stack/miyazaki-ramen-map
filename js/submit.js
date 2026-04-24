@@ -101,6 +101,7 @@ form.addEventListener("submit", async (e) => {
   const address = document.getElementById("address").value.trim();
   const instagramUrl = document.getElementById("instagram_url").value.trim();
   const phone = document.getElementById("phone").value.trim();
+  const note = document.getElementById("note").value.trim();
   const isNew = document.getElementById("is_new").checked;
 
   // バリデーション
@@ -125,6 +126,7 @@ form.addEventListener("submit", async (e) => {
       name,
       address,
       hours: JSON.stringify(getHoursData()),
+      note: note || null,
       phone: phone || null,
       instagram_url: instagramUrl || null,
       is_new: isNew,

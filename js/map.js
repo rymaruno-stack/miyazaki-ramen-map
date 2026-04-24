@@ -56,6 +56,9 @@ function popupHTML(shop) {
   const badge = shop.is_new ? `<span class="badge-new">NEW</span>` : "";
   const hoursHTML = formatHoursHTML(shop.hours);
   const hours = hoursHTML ? `<div class="popup-hours-wrap">${hoursHTML}</div>` : "";
+  const note = shop.note
+    ? `<div class="popup-note">📝 ${escapeHtml(shop.note)}</div>`
+    : "";
   const insta = shop.instagram_url
     ? `<a href="${escapeHtml(shop.instagram_url)}" target="_blank" rel="noopener noreferrer"
          class="popup-insta">📸 Instagram</a>`
@@ -67,6 +70,7 @@ function popupHTML(shop) {
       <div class="popup-name">${escapeHtml(shop.name)} ${badge}</div>
       <div class="popup-address">📍 ${escapeHtml(shop.address)}</div>
       ${hours}
+      ${note}
       <div class="popup-actions">${nav}${insta}</div>
     </div>
   `;
@@ -112,12 +116,16 @@ function renderShops(shops) {
           target="_blank" rel="noopener noreferrer"
           class="card-nav" onclick="event.stopPropagation()">🗺️ 道案内</a>`;
     const hoursHTML = formatHoursHTML(shop.hours);
+    const noteHTML = shop.note
+      ? `<div class="text-xs text-gray-500 mt-1">📝 ${escapeHtml(shop.note)}</div>`
+      : "";
     card.innerHTML = `
       <div class="flex items-start justify-between">
         <div class="min-w-0 flex-1">
           <div class="font-bold text-gray-800 text-sm">${escapeHtml(shop.name)}</div>
           <div class="text-xs text-gray-500 mt-1">📍 ${escapeHtml(shop.address)}</div>
           ${hoursHTML ? `<div class="mt-2">${hoursHTML}</div>` : ""}
+          ${noteHTML}
           <div class="card-actions">${navBtn}${instaBtn}</div>
         </div>
         ${shop.is_new ? `<span class="badge-new shrink-0 mt-0.5 ml-2">NEW</span>` : ""}
