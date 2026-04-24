@@ -140,6 +140,71 @@ function statusBadgeHTML(status) {
   return "";
 }
 
+// ─── 詳細モーダル ─────────────────────────────────────────────
+let modalEl = null;
+let currentModalShop = null;
+
+function initModal() {
+  modalEl = document.createElement("div");
+  modalEl.className = "detail-modal hidden";
+  modalEl.innerHTML = `
+    <div class="detail-backdrop"></div>
+    <div class="detail-sheet">
+      <div class="detail-content"></div>
+    </div>
+  `;
+  document.body.appendChild(modalEl);
+  modalEl.querySelector(".detail-backdrop").addEventListener("click", closeModal);
+}
+
+function closeModal() {
+  if (!modalEl) return;
+  modalEl.classList.add("hidden");
+  document.body.classList.remove("modal-open");
+  currentModalShop = null;
+}
+
+function showDetailModal(shop) {
+  currentModalShop = shop;
+  const content = modalEl.querySelector(".detail-content");
+  const status   = getBusinessStatus(shop.hours);
+  const hoursHTML = formatHoursHTML(shop.hours);
+
+  const statusBadge = status ? statusBadgeHTML(status) : "";
+  const newBadge    = shop.is_new ? '<span class="badge-new">NEW</span>' : "";
+  const phoneHTML   = shop.phone
+    ? `<div class="detail-row">📞 <a href="tel:${escapeHtml(shop.phone)}" class="detail-link">${escapeHtml(shop.phone)}</a></div>`
+    : "";
+  const noteHTML    = shop.note
+    ? `<div class="detail-note">📝 ${escapeHtml(shop.note)}</div>`
+    : "";
+  const instaBtn    = shop.instagram_url
+    ? `<a href="${escapeHtml(shop.instagram_url)}" target="_blank" rel="noopener noreferrer" class="detail-btn detail-btn-insta">📸 Instagram</a>`
+    : "";
+  const navBtn = `<a href="https://www.google.com/maps/dir/?api=1&destination=${shop.lat},${shop.lng}" target="_blank" rel="noopener noreferrer" class="detail-btn detail-btn-nav">🗺️ 道案内</a>`;
+
+  content.innerHTML = `
+    <div class="detail-header">
+      <div class="detail-name-row">
+        <span class="detail-name">${escapeHtml(shop.name)}</span>
+        <div class="detail-badges">${statusBadge}${newBadge}</div>
+      </div>
+      <button class="detail-close" aria-label="閉じる">✕</button>
+    </div>
+    <div class="detail-body">
+      <div class="detail-address">📍 ${escapeHtml(shop.address)}</div>
+      ${hoursHTML ? `<div class="detail-hours">${hoursHTML}</div>` : ""}
+      ${phoneHTML}
+      ${noteHTML}
+      <div class="detail-actions">${navBtn}${instaBtn}</div>
+    </div>
+  `;
+
+  content.querySelector(".detail-close").addEventListener("click", closeModal);
+  modalEl.classList.remove("hidden");
+  document.body.classList.add("modal-open");
+}
+
 // ─── ピンと店舗カードの生成 ──────────────────────────────────────
 const markers = {};
 let allShops = [];
@@ -150,7 +215,7 @@ function renderShops(shops) {
   if (countEl) countEl.textContent = `宮崎市内 ${shops.length}件掲載`;
 
   if (shops.length === 0) {
-    listEl.innerHTML = `<p class="text-gray-400 text-sm col-span-2">まだ店舗が登録されていません。</p>`;
+    listEl.innerHTML = `<p class="text-gray-400 text-sm p-4">まだ店舗が登録されていません。</p>`;
     return;
   }
 
@@ -164,38 +229,22 @@ function renderShops(shops) {
     markers[shop.id] = marker;
 
     const card = document.createElement("div");
-    card.className =
-      "shop-card bg-white rounded-xl border border-gray-200 shadow-sm p-4 cursor-pointer hover:shadow-md";
-    const instaBtn = shop.instagram_url
-      ? `<a href="${escapeHtml(shop.instagram_url)}" target="_blank" rel="noopener noreferrer"
-            class="card-insta" onclick="event.stopPropagation()">📸 Instagram</a>`
-      : "";
-    const navBtn = `<a href="https://www.google.com/maps/dir/?api=1&destination=${shop.lat},${shop.lng}"
-          target="_blank" rel="noopener noreferrer"
-          class="card-nav" onclick="event.stopPropagation()">🗺️ 道案内</a>`;
-    const hoursHTML = formatHoursHTML(shop.hours);
-    const noteHTML = shop.note
-      ? `<div class="text-xs text-gray-500 mt-1">📝 ${escapeHtml(shop.note)}</div>`
-      : "";
+    card.className = "shop-list-item";
+
     const s = getBusinessStatus(shop.hours);
-    const statusDiv = `<div class="mt-1" data-status-id="${shop.id}">${s ? statusBadgeHTML(s) : ""}</div>`;
     card.innerHTML = `
-      <div class="flex items-start justify-between">
-        <div class="min-w-0 flex-1">
-          <div class="font-bold text-gray-800 text-sm">${escapeHtml(shop.name)}</div>
-          <div class="text-xs text-gray-500 mt-1">📍 ${escapeHtml(shop.address)}</div>
-          ${statusDiv}
-          ${hoursHTML ? `<div class="mt-2">${hoursHTML}</div>` : ""}
-          ${noteHTML}
-          <div class="card-actions">${navBtn}${instaBtn}</div>
+      <div class="shop-list-main">
+        <span class="shop-list-name">${escapeHtml(shop.name)}</span>
+        <div class="shop-list-badges">
+          <span data-status-id="${shop.id}">${s ? statusBadgeHTML(s) : ""}</span>
+          ${shop.is_new ? '<span class="badge-new">NEW</span>' : ""}
         </div>
-        ${shop.is_new ? `<span class="badge-new shrink-0 mt-0.5 ml-2">NEW</span>` : ""}
       </div>
+      <span class="shop-list-arrow">›</span>
     `;
 
     card.addEventListener("click", () => {
-      map.setView([shop.lat, shop.lng], 16, { animate: true });
-      markers[shop.id].openPopup();
+      showDetailModal(shop);
     });
 
     listEl.appendChild(card);
@@ -226,7 +275,7 @@ async function loadShops() {
 function updateAllStatuses() {
   allShops.forEach(function(shop) {
     const s = getBusinessStatus(shop.hours);
-    // カードバッジ更新
+    // リストのバッジ更新
     const el = listEl.querySelector("[data-status-id='" + shop.id + "']");
     if (el) { el.innerHTML = s ? statusBadgeHTML(s) : ""; }
     // ポップアップ内容更新（開いていれば即時反映）
@@ -234,7 +283,12 @@ function updateAllStatuses() {
       markers[shop.id].setPopupContent(popupHTML(shop));
     }
   });
+  // 開いているモーダルを再描画
+  if (currentModalShop) {
+    showDetailModal(currentModalShop);
+  }
 }
 
+initModal();
 loadShops();
 setInterval(updateAllStatuses, 60000);
