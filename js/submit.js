@@ -56,6 +56,23 @@ document.querySelectorAll(".day-closed").forEach((cb) => {
   cb.addEventListener("change", () => updateRowState(cb.closest(".day-row")));
 });
 
+// 朝ラーメン・ランチのあり/なし切り替え
+function updateSlotState(cb, timesEl) {
+  if (cb.checked) {
+    timesEl.classList.remove("opacity-30", "pointer-events-none");
+  } else {
+    timesEl.classList.add("opacity-30", "pointer-events-none");
+  }
+}
+
+document.getElementById("morning-available").addEventListener("change", function() {
+  updateSlotState(this, document.getElementById("morning-times"));
+});
+
+document.getElementById("lunch-available").addEventListener("change", function() {
+  updateSlotState(this, document.getElementById("lunch-times"));
+});
+
 document.getElementById("copy-weekday").addEventListener("click", () => {
   const mon = document.querySelector("[data-day='mon']");
   const vals = {
@@ -90,6 +107,21 @@ function getHoursData() {
       };
     }
   });
+
+  const morningAvail = document.getElementById("morning-available").checked;
+  result.morning = {
+    available: morningAvail,
+    open: morningAvail ? document.getElementById("morning-open").value || null : null,
+    close: morningAvail ? document.getElementById("morning-close").value || null : null,
+  };
+
+  const lunchAvail = document.getElementById("lunch-available").checked;
+  result.lunch = {
+    available: lunchAvail,
+    open: lunchAvail ? document.getElementById("lunch-open").value || null : null,
+    close: lunchAvail ? document.getElementById("lunch-close").value || null : null,
+  };
+
   return result;
 }
 

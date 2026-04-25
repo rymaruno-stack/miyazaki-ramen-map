@@ -61,6 +61,12 @@ function popupHTML(shop) {
   const note = shop.note
     ? `<div class="popup-note">📝 ${escapeHtml(shop.note)}</div>`
     : "";
+  const { morning, lunch } = hasMorningLunch(shop.hours);
+  const featureBadges = [
+    morning ? '<span class="badge-morning">🌅 朝ラーメン</span>' : "",
+    lunch   ? '<span class="badge-lunch">🍱 ランチ</span>'       : "",
+  ].filter(Boolean).join("");
+  const features = featureBadges ? `<div class="popup-features">${featureBadges}</div>` : "";
   const insta = shop.instagram_url
     ? `<a href="${escapeHtml(shop.instagram_url)}" target="_blank" rel="noopener noreferrer"
          class="popup-insta">📸 Instagram</a>`
@@ -71,6 +77,7 @@ function popupHTML(shop) {
     <div class="popup-inner">
       <div class="popup-name">${escapeHtml(shop.name)} ${badge}</div>
       <div class="popup-address">📍 ${escapeHtml(shop.address)}</div>
+      ${features}
       ${statusBadge}
       ${hours}
       ${note}
@@ -85,6 +92,20 @@ function escapeHtml(str) {
     .replace(/</g, "&lt;")
     .replace(/>/g, "&gt;")
     .replace(/"/g, "&quot;");
+}
+
+// ─── 朝ラーメン・ランチ判定 ───────────────────────────────────────
+function hasMorningLunch(hoursJson) {
+  if (!hoursJson) return { morning: false, lunch: false };
+  let parsed;
+  try {
+    parsed = JSON.parse(hoursJson);
+    if (typeof parsed !== "object" || Array.isArray(parsed)) return { morning: false, lunch: false };
+  } catch { return { morning: false, lunch: false }; }
+  return {
+    morning: !!(parsed.morning && parsed.morning.available),
+    lunch:   !!(parsed.lunch   && parsed.lunch.available),
+  };
 }
 
 // ─── 営業状況判定 ─────────────────────────────────────────────
@@ -172,6 +193,9 @@ function showDetailModal(shop) {
 
   const statusBadge = status ? statusBadgeHTML(status) : "";
   const newBadge    = shop.is_new ? '<span class="badge-new">NEW</span>' : "";
+  const { morning: hasMorning, lunch: hasLunch } = hasMorningLunch(shop.hours);
+  const morningBadge = hasMorning ? '<span class="badge-morning">🌅 朝ラーメン</span>' : "";
+  const lunchBadge   = hasLunch   ? '<span class="badge-lunch">🍱 ランチ</span>'       : "";
   const phoneHTML   = shop.phone
     ? `<div class="detail-row">📞 <a href="tel:${escapeHtml(shop.phone)}" class="detail-link">${escapeHtml(shop.phone)}</a></div>`
     : "";
@@ -187,7 +211,7 @@ function showDetailModal(shop) {
     <div class="detail-header">
       <div class="detail-name-row">
         <span class="detail-name">${escapeHtml(shop.name)}</span>
-        <div class="detail-badges">${statusBadge}${newBadge}</div>
+        <div class="detail-badges">${statusBadge}${newBadge}${morningBadge}${lunchBadge}</div>
       </div>
       <button class="detail-close" aria-label="閉じる">✕</button>
     </div>
@@ -233,12 +257,15 @@ function renderShops(shops) {
     card.setAttribute("data-shop-id", shop.id);
 
     const s = getBusinessStatus(shop.hours);
+    const { morning: hasMorning, lunch: hasLunch } = hasMorningLunch(shop.hours);
     card.innerHTML = `
       <div class="shop-list-main">
         <span class="shop-list-name">${escapeHtml(shop.name)}</span>
         <div class="shop-list-badges">
           <span data-status-id="${shop.id}">${s ? statusBadgeHTML(s) : ""}</span>
           ${shop.is_new ? '<span class="badge-new">NEW</span>' : ""}
+          ${hasMorning ? '<span class="badge-morning">🌅 朝ラーメン</span>' : ""}
+          ${hasLunch   ? '<span class="badge-lunch">🍱 ランチ</span>'       : ""}
         </div>
       </div>
       <span class="shop-list-arrow">›</span>

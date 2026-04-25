@@ -169,6 +169,38 @@
   vertical-align: middle;
 }
 
+/* 朝ラーメン・ランチバッジ */
+.badge-morning {
+  display: inline-block;
+  background-color: #ffedd5;
+  color: #c2410c;
+  font-size: 10px;
+  font-weight: 800;
+  padding: 1px 6px;
+  border-radius: 999px;
+  letter-spacing: 0.03em;
+  vertical-align: middle;
+}
+
+.badge-lunch {
+  display: inline-block;
+  background-color: #dcfce7;
+  color: #15803d;
+  font-size: 10px;
+  font-weight: 800;
+  padding: 1px 6px;
+  border-radius: 999px;
+  letter-spacing: 0.03em;
+  vertical-align: middle;
+}
+
+.popup-features {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin-bottom: 4px;
+}
+
 /* カスタムピンアイコン（NEW） */
 .pin-new {
   background: #22c55e;
