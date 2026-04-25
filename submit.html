@@ -75,10 +75,16 @@
         <div class="mb-5">
           <div class="flex items-center justify-between mb-2">
             <label class="text-sm font-bold text-gray-700">営業時間</label>
-            <button type="button" id="copy-weekday"
-              class="text-xs bg-gray-100 hover:bg-gray-200 text-gray-600 font-semibold px-3 py-1 rounded-full transition">
-              月〜金にコピー
-            </button>
+            <div class="flex gap-2">
+              <button type="button" id="copy-weekday"
+                class="text-xs bg-gray-100 hover:bg-gray-200 text-gray-600 font-semibold px-3 py-1 rounded-full transition">
+                月〜金にコピー
+              </button>
+              <button type="button" id="copy-sat-to-sun"
+                class="text-xs bg-gray-100 hover:bg-gray-200 text-gray-600 font-semibold px-3 py-1 rounded-full transition">
+                土→日にコピー
+              </button>
+            </div>
           </div>
           <div class="border border-gray-200 rounded-xl overflow-hidden divide-y divide-gray-100">
 

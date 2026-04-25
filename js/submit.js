@@ -91,6 +91,16 @@ document.getElementById("copy-weekday").addEventListener("click", () => {
   });
 });
 
+document.getElementById("copy-sat-to-sun").addEventListener("click", () => {
+  const sat = document.querySelector("[data-day='sat']");
+  const sun = document.querySelector("[data-day='sun']");
+  sun.querySelector(".day-open").value   = sat.querySelector(".day-open").value;
+  sun.querySelector(".day-close").value  = sat.querySelector(".day-close").value;
+  sun.querySelector(".day-lo").value     = sat.querySelector(".day-lo").value;
+  sun.querySelector(".day-closed").checked = sat.querySelector(".day-closed").checked;
+  updateRowState(sun);
+});
+
 function getHoursData() {
   const result = {};
   DAYS.forEach((day) => {
