@@ -132,6 +132,8 @@ form.addEventListener("submit", async (e) => {
       is_new: isNew,
       lat,
       lng,
+      is_approved: true, // TODO: false に戻す（審査フロー復活時）
+      // is_approved: false,
     });
 
     if (error) throw new Error(error.message);
