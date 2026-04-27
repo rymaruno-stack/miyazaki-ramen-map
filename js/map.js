@@ -299,7 +299,10 @@ function renderShops(shops) {
     `;
 
     card.addEventListener("click", () => {
-      showDetailModal(shop);
+      map.setView([shop.lat, shop.lng], 16);
+      if (markers[shop.id]) {
+        markers[shop.id].openPopup();
+      }
     });
 
     listEl.appendChild(card);
