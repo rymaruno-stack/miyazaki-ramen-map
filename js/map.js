@@ -179,17 +179,37 @@ function getBusinessStatus(hoursJson) {
   const oM = timeToMin(d.open), cM = timeToMin(d.close);
   const lM = d.lo ? timeToMin(d.lo) : null;
 
-  // 深夜越えは開店〜深夜まで「営業中」、翌朝〜閉店は昨日チェックで処理済み
+  // ランチ設定がある場合
+  const lunch = parsed.lunch;
+  if (lunch && lunch.available && lunch.open && lunch.close) {
+    const loM = timeToMin(lunch.open);
+    const lcM = timeToMin(lunch.close);
+
+    if (cur >= loM && cur < lcM) return "lunch_open";
+
+    if (cur >= lcM) {
+      const inDinner = cM < oM ? cur >= oM : (cur >= oM && cur < cM);
+      if (inDinner) return (lM !== null && cur >= lM) ? "lo_passed" : "open";
+      if (oM > lcM && cur < oM) return "preparing";
+      return "closed";
+    }
+
+    return "closed";
+  }
+
+  // ランチなし：従来ロジック
   const inHours = cM < oM ? cur >= oM : cur >= oM && cur < cM;
   if (!inHours) return "closed";
   return (lM !== null && cur >= lM) ? "lo_passed" : "open";
 }
 
 function statusBadgeHTML(status) {
-  if (status === "open")      return '<span class="status-badge status-open">🟢 営業中</span>';
-  if (status === "lo_passed") return '<span class="status-badge status-lo">🟡 LO済み</span>';
-  if (status === "closed")    return '<span class="status-badge status-closed">🔴 営業時間外</span>';
-  if (status === "holiday")   return '<span class="status-badge status-holiday">⚫ 定休日</span>';
+  if (status === "open")       return '<span class="status-badge status-open">🟢 営業中</span>';
+  if (status === "lunch_open") return '<span class="status-badge status-lunch">🍱 ランチ営業中</span>';
+  if (status === "preparing")  return '<span class="status-badge status-preparing">🔴 準備中</span>';
+  if (status === "lo_passed")  return '<span class="status-badge status-lo">🟡 LO済み</span>';
+  if (status === "closed")     return '<span class="status-badge status-closed">🔴 営業時間外</span>';
+  if (status === "holiday")    return '<span class="status-badge status-holiday">⚫ 定休日</span>';
   return "";
 }
 
@@ -384,7 +404,7 @@ function filterShops(query) {
   allShops.forEach(function(shop) {
     const matchSearch = !q || shop.name.toLowerCase().includes(q);
     const matchArea   = matchesArea(shop, currentArea);
-    const matchOpen   = !openNowOnly || getBusinessStatus(shop.hours) === "open";
+    const matchOpen   = !openNowOnly || ["open", "lunch_open"].includes(getBusinessStatus(shop.hours));
     const match = matchSearch && matchArea && matchOpen;
     const card = listEl.querySelector('[data-shop-id="' + shop.id + '"]');
     if (card) { card.style.display = match ? "" : "none"; }

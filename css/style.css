@@ -380,6 +380,16 @@
   color: #15803d;
 }
 
+.status-lunch {
+  background: #fef9c3;
+  color: #92400e;
+}
+
+.status-preparing {
+  background: #fee2e2;
+  color: #dc2626;
+}
+
 .status-lo {
   background: #fef9c3;
   color: #a16207;
