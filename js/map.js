@@ -109,6 +109,11 @@ function popupHTML(shop) {
       ${hours}
       ${note}
       <div class="popup-actions">${nav}${insta}</div>
+      <div class="popup-edit-wrap">
+        <button class="popup-edit-req"
+          data-shop-id="${shop.id}"
+          data-shop-name="${escapeHtml(shop.name)}">✏️ 情報を修正する</button>
+      </div>
     </div>
   `;
 }
@@ -478,6 +483,97 @@ function showLocateError(msg) {
   setTimeout(function() { toast.remove(); }, 3000);
 }
 
+// ─── 編集リクエストモーダル ──────────────────────────────────────
+let editReqModalEl = null;
+
+function initEditRequestModal() {
+  editReqModalEl = document.createElement("div");
+  editReqModalEl.className = "edit-req-modal hidden";
+  editReqModalEl.innerHTML = `
+    <div class="edit-req-backdrop"></div>
+    <div class="edit-req-sheet">
+      <div class="edit-req-header">
+        <span class="edit-req-title">情報を修正する</span>
+        <button class="edit-req-close" aria-label="閉じる">✕</button>
+      </div>
+      <div class="edit-req-body">
+        <p class="edit-req-shop-name"></p>
+        <textarea class="edit-req-textarea" placeholder="修正してほしい内容を入力してください（例：営業時間が変わりました）" rows="5"></textarea>
+        <p class="edit-req-error hidden"></p>
+      </div>
+      <div class="edit-req-footer">
+        <button class="edit-req-submit">送信する</button>
+      </div>
+    </div>
+  `;
+  document.body.appendChild(editReqModalEl);
+  editReqModalEl.querySelector(".edit-req-backdrop").addEventListener("click", closeEditRequestModal);
+  editReqModalEl.querySelector(".edit-req-close").addEventListener("click", closeEditRequestModal);
+}
+
+function openEditRequest(shopId, shopName) {
+  editReqModalEl.querySelector(".edit-req-shop-name").textContent = "📍 " + shopName;
+  editReqModalEl.querySelector(".edit-req-textarea").value = "";
+  const errEl = editReqModalEl.querySelector(".edit-req-error");
+  errEl.classList.add("hidden");
+  const submitBtn = editReqModalEl.querySelector(".edit-req-submit");
+  submitBtn.textContent = "送信する";
+  submitBtn.disabled = false;
+
+  submitBtn.onclick = function() {
+    const content = editReqModalEl.querySelector(".edit-req-textarea").value.trim();
+    if (!content) {
+      errEl.textContent = "内容を入力してください";
+      errEl.classList.remove("hidden");
+      return;
+    }
+    submitBtn.disabled = true;
+    submitBtn.textContent = "送信中…";
+
+    db.from("edit_requests").insert({
+      shop_id: shopId,
+      shop_name: shopName,
+      request_content: content,
+    }).then(function(res) {
+      if (res.error) {
+        errEl.textContent = "エラー: " + res.error.message;
+        errEl.classList.remove("hidden");
+        submitBtn.disabled = false;
+        submitBtn.textContent = "送信する";
+      } else {
+        closeEditRequestModal();
+        showToast("✅ リクエストを送信しました");
+      }
+    });
+  };
+
+  editReqModalEl.classList.remove("hidden");
+  document.body.classList.add("modal-open");
+}
+
+function closeEditRequestModal() {
+  if (!editReqModalEl) return;
+  editReqModalEl.classList.add("hidden");
+  document.body.classList.remove("modal-open");
+}
+
+function showToast(msg) {
+  const toast = document.createElement("div");
+  toast.className = "toast-msg";
+  toast.textContent = msg;
+  document.body.appendChild(toast);
+  setTimeout(function() { toast.remove(); }, 3000);
+}
+
+// 編集リクエストボタンのクリック委譲
+document.addEventListener("click", function(e) {
+  const btn = e.target.closest(".popup-edit-req");
+  if (btn) {
+    openEditRequest(btn.dataset.shopId, btn.dataset.shopName);
+  }
+});
+
 initModal();
+initEditRequestModal();
 loadShops();
 setInterval(updateAllStatuses, 60000);

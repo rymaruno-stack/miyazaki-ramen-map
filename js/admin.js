@@ -23,13 +23,22 @@ pwInput.addEventListener("keydown", function(e) {
   if (e.key === "Enter") { onLogin(); }
 });
 
+var editReqSection  = document.getElementById("edit-req-section");
+var editReqList     = document.getElementById("edit-req-list");
+var editReqCount    = document.getElementById("edit-req-count");
+var editReqLoading  = document.getElementById("edit-req-loading");
+var editReqError    = document.getElementById("edit-req-error");
+var editReqEmpty    = document.getElementById("edit-req-empty");
+
 function onLogin() {
   if (pwInput.value === PASSWORD) {
     authScreen.classList.add("hidden");
     mainScreen.classList.remove("hidden");
     approvedSection.classList.remove("hidden");
+    editReqSection.classList.remove("hidden");
     fetchShops();
     fetchApprovedShops();
+    fetchEditRequests();
   } else {
     pwError.classList.remove("hidden");
     pwInput.value = "";
@@ -535,6 +544,99 @@ function buildHoursEditor(hoursJson) {
   });
 
   return container;
+}
+
+// ---- 編集リクエスト取得 ----
+function fetchEditRequests() {
+  editReqLoading.classList.remove("hidden");
+  editReqError.classList.add("hidden");
+  editReqList.innerHTML = "";
+  editReqEmpty.classList.add("hidden");
+
+  db.from("edit_requests")
+    .select("*")
+    .eq("status", "pending")
+    .order("created_at", { ascending: false })
+    .then(function(res) {
+      editReqLoading.classList.add("hidden");
+
+      if (res.error) {
+        editReqError.textContent = "取得エラー: " + res.error.message;
+        editReqError.classList.remove("hidden");
+        return;
+      }
+
+      editReqCount.textContent = res.data.length + "件";
+
+      if (res.data.length === 0) {
+        editReqEmpty.classList.remove("hidden");
+        return;
+      }
+
+      res.data.forEach(function(req) {
+        editReqList.appendChild(buildEditRequestCard(req));
+      });
+    });
+}
+
+// ---- 編集リクエストカード生成 ----
+function buildEditRequestCard(req) {
+  var card = document.createElement("div");
+  card.className = "bg-white rounded-xl border border-orange-200 shadow-sm p-4";
+
+  var shopName = document.createElement("p");
+  shopName.className = "font-bold text-gray-800 text-base";
+  shopName.textContent = "📍 " + (req.shop_name || "(店舗名不明)");
+
+  var date = document.createElement("p");
+  date.className = "text-xs text-gray-400 mt-1";
+  date.textContent = "投稿: " + new Date(req.created_at).toLocaleString("ja-JP");
+
+  var content = document.createElement("p");
+  content.className = "text-sm text-gray-700 mt-3 bg-orange-50 rounded-lg px-3 py-2 whitespace-pre-wrap";
+  content.textContent = req.request_content;
+
+  var doneBtn = document.createElement("button");
+  doneBtn.textContent = "対応済みにする";
+  doneBtn.className = "mt-4 bg-gray-100 hover:bg-green-100 text-green-700 text-sm font-bold py-2 px-5 rounded-xl";
+
+  var msgEl = document.createElement("p");
+  msgEl.className = "hidden text-xs text-red-500 mt-2";
+
+  doneBtn.addEventListener("click", function() {
+    doneBtn.disabled = true;
+    doneBtn.textContent = "処理中...";
+
+    db.from("edit_requests")
+      .update({ status: "done" })
+      .eq("id", req.id)
+      .then(function(res) {
+        if (res.error) {
+          msgEl.textContent = "エラー: " + res.error.message;
+          msgEl.classList.remove("hidden");
+          doneBtn.disabled = false;
+          doneBtn.textContent = "対応済みにする";
+        } else {
+          card.style.opacity = "0";
+          card.style.transition = "opacity 0.3s";
+          setTimeout(function() {
+            if (card.parentNode) { card.parentNode.removeChild(card); }
+            var current = parseInt(editReqCount.textContent, 10) || 0;
+            var next = Math.max(0, current - 1);
+            editReqCount.textContent = next + "件";
+            if (next === 0) { editReqEmpty.classList.remove("hidden"); }
+          }, 300);
+        }
+      });
+  });
+
+  card.appendChild(shopName);
+  card.appendChild(date);
+  card.appendChild(content);
+  card.appendChild(doneBtn);
+  card.appendChild(msgEl);
+
+  return card;
 }
 
 // ---- 営業時間エディタからデータ取得 ----

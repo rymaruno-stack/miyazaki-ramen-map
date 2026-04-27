@@ -59,6 +59,18 @@
     <div id="approved-shop-list" class="space-y-4"></div>
   </section>
 
+  <section id="edit-req-section" class="hidden max-w-3xl mx-auto px-4 pb-12">
+    <hr class="border-gray-200 mb-8">
+    <div class="flex items-center justify-between mb-6">
+      <h2 class="text-xl font-bold text-gray-800">編集リクエスト</h2>
+      <span id="edit-req-count" class="text-sm bg-orange-100 text-orange-700 font-bold px-3 py-1 rounded-full">0件</span>
+    </div>
+    <p id="edit-req-loading" class="text-gray-400 text-sm">読み込み中...</p>
+    <p id="edit-req-error" class="hidden text-red-500 text-sm bg-red-50 border border-red-200 rounded-lg px-4 py-3"></p>
+    <div id="edit-req-list" class="space-y-4"></div>
+    <p id="edit-req-empty" class="hidden text-center text-gray-500 py-16 font-bold">未対応のリクエストはありません</p>
+  </section>
+
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
   <script src="js/config.js"></script>
   <script src="js/admin.js"></script>
