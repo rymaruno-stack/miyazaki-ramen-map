@@ -141,7 +141,12 @@ form.addEventListener("submit", async (e) => {
 
   const name = document.getElementById("name").value.trim();
   const address = document.getElementById("address").value.trim();
-  const instagramUrl = document.getElementById("instagram_url").value.trim();
+  const instagramRaw = document.getElementById("instagram_url").value.trim();
+  const instagramUrl = instagramRaw
+    ? (instagramRaw.startsWith("https://")
+        ? instagramRaw
+        : "https://www.instagram.com/" + instagramRaw.replace(/^@/, ""))
+    : "";
   const phone = document.getElementById("phone").value.trim();
   const note = document.getElementById("note").value.trim();
   const isNew = document.getElementById("is_new").checked;
