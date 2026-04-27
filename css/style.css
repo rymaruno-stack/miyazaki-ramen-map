@@ -1,3 +1,44 @@
+/* ─── エリアフィルター ─────────────────────────────────────────── */
+.area-filter-wrap {
+  display: flex;
+  gap: 6px;
+  overflow-x: auto;
+  margin-bottom: 10px;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+  padding-bottom: 2px;
+}
+
+.area-filter-wrap::-webkit-scrollbar {
+  display: none;
+}
+
+.area-btn {
+  flex-shrink: 0;
+  font-size: 12px;
+  font-weight: 600;
+  padding: 5px 12px;
+  border-radius: 999px;
+  border: 1.5px solid #e5e7eb;
+  background: white;
+  color: #374151;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background 0.15s, color 0.15s, border-color 0.15s;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.area-btn:hover {
+  border-color: #ef4444;
+  color: #ef4444;
+}
+
+.area-btn.active {
+  background: #ef4444;
+  border-color: #ef4444;
+  color: white;
+}
+
 /* ─── 検索バー ───────────────────────────────────────────────── */
 .search-wrap {
   position: relative;
