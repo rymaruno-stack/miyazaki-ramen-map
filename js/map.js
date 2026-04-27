@@ -60,11 +60,13 @@ function hasStructuredHours(hoursJson) {
 }
 
 function isValidHoursJSON(hours) {
-  if (!hours) return false;
+  if (!hours || hours.trim() === "") return false;
   try {
-    const p = JSON.parse(hours);
-    return typeof p === "object" && p !== null;
-  } catch (e) { return false; }
+    const parsed = JSON.parse(hours);
+    return typeof parsed === "object" && parsed !== null && ("mon" in parsed || "tue" in parsed);
+  } catch {
+    return false;
+  }
 }
 
 // ─── ポップアップHTML ────────────────────────────────────────────
