@@ -47,8 +47,23 @@ function formatHoursHTML(hours) {
       <span class="hours-time">${time}${lo}</span>
     </div>`;
   }).join("");
-  if (!rows) return "";
-  return `<div class="hours-table">${rows}</div>`;
+  const extras = [];
+  if (parsed.morning && parsed.morning.available && parsed.morning.open && parsed.morning.close) {
+    extras.push(`<div class="hours-extra-row">
+      <span class="hours-extra-label">🌅 朝ラーメン</span>
+      <span class="hours-extra-time">${parsed.morning.open}〜${parsed.morning.close}</span>
+    </div>`);
+  }
+  if (parsed.lunch && parsed.lunch.available && parsed.lunch.open && parsed.lunch.close) {
+    extras.push(`<div class="hours-extra-row">
+      <span class="hours-extra-label">🍱 ランチ</span>
+      <span class="hours-extra-time">${parsed.lunch.open}〜${parsed.lunch.close}</span>
+    </div>`);
+  }
+  const extrasHTML = extras.length ? `<div class="hours-extras">${extras.join("")}</div>` : "";
+  const tableHTML  = rows ? `<div class="hours-table">${rows}</div>` : "";
+  if (!tableHTML && !extrasHTML) return "";
+  return tableHTML + extrasHTML;
 }
 
 function hasStructuredHours(hoursJson) {
