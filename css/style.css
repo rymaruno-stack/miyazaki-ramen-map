@@ -39,22 +39,15 @@
   color: white;
 }
 
-/* 営業中のみフィルターボタン */
-.filter-divider {
-  flex-shrink: 0;
-  color: #d1d5db;
-  font-size: 16px;
-  display: flex;
-  align-items: center;
-  user-select: none;
-  padding: 0 2px;
+/* 営業中のみフィルター行 */
+.open-now-wrap {
+  margin-bottom: 10px;
 }
 
 .open-now-btn {
-  flex-shrink: 0;
-  font-size: 12px;
-  font-weight: 600;
-  padding: 5px 12px;
+  font-size: 13px;
+  font-weight: 700;
+  padding: 6px 16px;
   border-radius: 999px;
   border: 1.5px solid #86efac;
   background: white;
