@@ -59,6 +59,14 @@ function hasStructuredHours(hoursJson) {
   } catch { return false; }
 }
 
+function isValidHoursJSON(hours) {
+  if (!hours) return false;
+  try {
+    const p = JSON.parse(hours);
+    return typeof p === "object" && p !== null;
+  } catch (e) { return false; }
+}
+
 // ─── ポップアップHTML ────────────────────────────────────────────
 function popupHTML(shop) {
   const badge = shop.is_new ? `<span class="badge-new">NEW</span>` : "";
@@ -243,19 +251,15 @@ let allShops = [];
 const listEl = document.getElementById("shop-list");
 const countEl = document.getElementById("shop-count");
 function renderShops(shops) {
-  // hours入力済みを先に、同グループ内はDB順（created_at降順）を維持
-  const withHours    = shops.filter(function(s) { return hasStructuredHours(s.hours); });
-  const withoutHours = shops.filter(function(s) { return !hasStructuredHours(s.hours); });
-  const sorted = withHours.concat(withoutHours);
-  allShops = sorted;
+  allShops = shops;
   if (countEl) countEl.textContent = `宮崎市内 ${shops.length}件掲載`;
 
-  if (sorted.length === 0) {
+  if (shops.length === 0) {
     listEl.innerHTML = `<p class="text-gray-400 text-sm p-4">まだ店舗が登録されていません。</p>`;
     return;
   }
 
-  sorted.forEach((shop) => {
+  shops.forEach((shop) => {
     if (shop.lat == null || shop.lng == null) return;
 
     const marker = L.marker([shop.lat, shop.lng], { icon: createIcon(shop.is_new) })
@@ -308,6 +312,15 @@ async function loadShops() {
   }
 
   listEl.innerHTML = "";
+
+  data.sort((a, b) => {
+    const aHasHours = isValidHoursJSON(a.hours);
+    const bHasHours = isValidHoursJSON(b.hours);
+    if (aHasHours && !bHasHours) return -1;
+    if (!aHasHours && bHasHours) return 1;
+    return 0;
+  });
+
   renderShops(data);
 }
 
