@@ -321,6 +321,10 @@ async function loadShops() {
     return 0;
   });
 
+  console.log("ソート後:", data.map(function(s) {
+    return s.name + (isValidHoursJSON(s.hours) ? " [hours○]" : " [hours✗]");
+  }));
+
   renderShops(data);
 }
 
@@ -357,6 +361,14 @@ function matchesArea(shop, area) {
 
 function filterShops(query) {
   const q = query.trim().toLowerCase();
+  const visible = allShops.filter(function(shop) {
+    const matchSearch = !q || shop.name.toLowerCase().includes(q);
+    const matchArea   = matchesArea(shop, currentArea);
+    return matchSearch && matchArea;
+  });
+  console.log("フィルター後（表示順）:", visible.map(function(s) {
+    return s.name + (isValidHoursJSON(s.hours) ? " [hours○]" : " [hours✗]");
+  }));
   allShops.forEach(function(shop) {
     const matchSearch = !q || shop.name.toLowerCase().includes(q);
     const matchArea   = matchesArea(shop, currentArea);
