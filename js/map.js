@@ -63,7 +63,16 @@ function isValidHoursJSON(hours) {
   if (!hours || hours.trim() === "") return false;
   try {
     const parsed = JSON.parse(hours);
-    return typeof parsed === "object" && parsed !== null && ("mon" in parsed || "tue" in parsed);
+    if (typeof parsed !== "object" || parsed === null) return false;
+    const days = ["mon","tue","wed","thu","fri","sat","sun"];
+    return days.some(day =>
+      parsed[day] &&
+      !parsed[day].closed &&
+      parsed[day].open &&
+      parsed[day].open !== "" &&
+      parsed[day].close &&
+      parsed[day].close !== ""
+    );
   } catch {
     return false;
   }
