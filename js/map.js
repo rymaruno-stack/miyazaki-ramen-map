@@ -244,9 +244,9 @@ const listEl = document.getElementById("shop-list");
 const countEl = document.getElementById("shop-count");
 function renderShops(shops) {
   // hours入力済みを先に、同グループ内はDB順（created_at降順）を維持
-  const sorted = shops.slice().sort(function(a, b) {
-    return (hasStructuredHours(b.hours) ? 1 : 0) - (hasStructuredHours(a.hours) ? 1 : 0);
-  });
+  const withHours    = shops.filter(function(s) { return hasStructuredHours(s.hours); });
+  const withoutHours = shops.filter(function(s) { return !hasStructuredHours(s.hours); });
+  const sorted = withHours.concat(withoutHours);
   allShops = sorted;
   if (countEl) countEl.textContent = `宮崎市内 ${shops.length}件掲載`;
 
