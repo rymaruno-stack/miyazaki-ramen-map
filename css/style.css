@@ -39,6 +39,43 @@
   color: white;
 }
 
+/* 営業中のみフィルターボタン */
+.filter-divider {
+  flex-shrink: 0;
+  color: #d1d5db;
+  font-size: 16px;
+  display: flex;
+  align-items: center;
+  user-select: none;
+  padding: 0 2px;
+}
+
+.open-now-btn {
+  flex-shrink: 0;
+  font-size: 12px;
+  font-weight: 600;
+  padding: 5px 12px;
+  border-radius: 999px;
+  border: 1.5px solid #86efac;
+  background: white;
+  color: #15803d;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background 0.15s, color 0.15s, border-color 0.15s;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.open-now-btn:hover {
+  border-color: #22c55e;
+  background: #f0fdf4;
+}
+
+.open-now-btn.active {
+  background: #22c55e;
+  border-color: #22c55e;
+  color: white;
+}
+
 /* ─── 検索バー ───────────────────────────────────────────────── */
 .search-wrap {
   position: relative;

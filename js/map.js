@@ -371,6 +371,7 @@ const searchClear = document.getElementById("search-clear");
 
 const KNOWN_CITIES = ["宮崎市", "都城市", "延岡市", "日南市", "小林市"];
 let currentArea = "all";
+let openNowOnly = false;
 
 function matchesArea(shop, area) {
   if (area === "all")   return true;
@@ -380,18 +381,11 @@ function matchesArea(shop, area) {
 
 function filterShops(query) {
   const q = query.trim().toLowerCase();
-  const visible = allShops.filter(function(shop) {
-    const matchSearch = !q || shop.name.toLowerCase().includes(q);
-    const matchArea   = matchesArea(shop, currentArea);
-    return matchSearch && matchArea;
-  });
-  console.log("フィルター後（表示順）:", visible.map(function(s) {
-    return s.name + (isValidHoursJSON(s.hours) ? " [hours○]" : " [hours✗]");
-  }));
   allShops.forEach(function(shop) {
     const matchSearch = !q || shop.name.toLowerCase().includes(q);
     const matchArea   = matchesArea(shop, currentArea);
-    const match = matchSearch && matchArea;
+    const matchOpen   = !openNowOnly || getBusinessStatus(shop.hours) === "open";
+    const match = matchSearch && matchArea && matchOpen;
     const card = listEl.querySelector('[data-shop-id="' + shop.id + '"]');
     if (card) { card.style.display = match ? "" : "none"; }
     if (markers[shop.id]) {
@@ -426,6 +420,16 @@ document.querySelectorAll(".area-btn").forEach(function(btn) {
     filterShops(searchInput ? searchInput.value : "");
   });
 });
+
+// 営業中のみフィルター
+const openNowBtn = document.getElementById("open-now-btn");
+if (openNowBtn) {
+  openNowBtn.addEventListener("click", function() {
+    openNowOnly = !openNowOnly;
+    this.classList.toggle("active", openNowOnly);
+    filterShops(searchInput ? searchInput.value : "");
+  });
+}
 
 // ─── 現在地ボタン ─────────────────────────────────────────────
 let locationMarker = null;
