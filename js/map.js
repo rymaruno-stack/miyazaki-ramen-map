@@ -419,6 +419,62 @@ document.querySelectorAll(".area-btn").forEach(function(btn) {
   });
 });
 
+// ─── 現在地ボタン ─────────────────────────────────────────────
+let locationMarker = null;
+
+const LocationControl = L.Control.extend({
+  options: { position: "bottomright" },
+  onAdd: function() {
+    const btn = L.DomUtil.create("button", "locate-btn");
+    btn.innerHTML = "📍";
+    btn.title = "現在地を表示";
+    L.DomEvent.on(btn, "click", L.DomEvent.stopPropagation);
+    L.DomEvent.on(btn, "click", locateUser);
+    return btn;
+  }
+});
+new LocationControl().addTo(map);
+
+function locateUser() {
+  if (!navigator.geolocation) {
+    showLocateError("このブラウザは位置情報に対応していません");
+    return;
+  }
+  navigator.geolocation.getCurrentPosition(
+    function(pos) {
+      const lat = pos.coords.latitude;
+      const lng = pos.coords.longitude;
+      if (locationMarker) {
+        locationMarker.setLatLng([lat, lng]);
+      } else {
+        locationMarker = L.circleMarker([lat, lng], {
+          radius: 10,
+          color: "#1d4ed8",
+          fillColor: "#3b82f6",
+          fillOpacity: 0.85,
+          weight: 3,
+        }).addTo(map).bindPopup("現在地");
+      }
+      map.setView([lat, lng], 15);
+    },
+    function(err) {
+      const msg = err.code === 1
+        ? "位置情報の使用が拒否されました"
+        : "現在地を取得できませんでした";
+      showLocateError(msg);
+    },
+    { enableHighAccuracy: true, timeout: 10000 }
+  );
+}
+
+function showLocateError(msg) {
+  const toast = document.createElement("div");
+  toast.className = "locate-error";
+  toast.textContent = msg;
+  document.body.appendChild(toast);
+  setTimeout(function() { toast.remove(); }, 3000);
+}
+
 initModal();
 loadShops();
 setInterval(updateAllStatuses, 60000);

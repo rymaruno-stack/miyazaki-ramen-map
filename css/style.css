@@ -600,3 +600,41 @@
 body.modal-open {
   overflow: hidden;
 }
+
+/* ─── 現在地ボタン ────────────────────────────────────────── */
+.locate-btn {
+  width: 36px;
+  height: 36px;
+  background: white;
+  border: 2px solid rgba(0, 0, 0, 0.2);
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 1px 5px rgba(0, 0, 0, 0.3);
+  -webkit-tap-highlight-color: transparent;
+  line-height: 1;
+}
+
+.locate-btn:hover {
+  background: #f4f4f4;
+}
+
+/* エラートースト */
+.locate-error {
+  position: fixed;
+  bottom: 100px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(0, 0, 0, 0.75);
+  color: white;
+  font-size: 13px;
+  font-weight: 600;
+  padding: 8px 18px;
+  border-radius: 999px;
+  z-index: 9999;
+  white-space: nowrap;
+  pointer-events: none;
+}
